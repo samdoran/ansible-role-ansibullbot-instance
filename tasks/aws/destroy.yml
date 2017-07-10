@@ -1,0 +1,38 @@
+- name: AWS | Remove ssh keys
+  ec2_key:
+    name: "{{ item.name }}"
+    key_material: "{{ item.key_material }}"
+    region: "{{ botinstance_region }}"
+    state: absent
+  with_items: "{{ botinstance_ssh_keys }}"
+
+- name: AWS | Destroy instance
+  ec2:
+    count_tag:
+      Name: ansibullbot
+    exact_count: 0
+    image: "{{ _amifind.results[0].ami_id }}"
+    region: "{{ botinstance_region }}"
+
+- name: AWS | Delete security group
+  ec2_group:
+    description: "Ports for bot"
+    name: "{{ botinstance_security_group_name }}"
+    region: "{{ botinstance_region }}"
+    rules: "{{ botinstance_security_group_rules }}"
+    state: absent
+  register: _security_group
+  until: _security_group | success
+  delay: 10
+  retries: 5
+
+- name: AWS | Delete route 53 entries
+  route53:
+    command: delete
+    zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
+    overwrite: yes
+    record: "{{ item.record }}"
+    ttl: "{{ item.ttl | default('300') }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value | default(omit) }}"
+  with_items: "{{ botinstance_dns_entries }}"

@@ -1,0 +1,82 @@
+- name: AWS | Create ssh keys
+  ec2_key:
+    name: "{{ item.name }}"
+    key_material: "{{ item.key_material }}"
+    region: "{{ botinstance_region }}"
+    state: "{{ item.state | default(omit) }}"
+  with_items: "{{ botinstance_ssh_keys }}"
+  tags:
+    - botinstance
+    - create
+    - ssh
+
+- name: AWS | Create security group
+  ec2_group:
+    description: "Ports for bot"
+    name: "{{ botinstance_security_group_name }}"
+    region: "{{ botinstance_region }}"
+    rules: "{{ botinstance_security_group_rules }}"
+    state: "{{ botinstance_state | default(omit) }}"
+  register: _security_group
+  tags:
+    - botinstance
+    - create
+    - security_group
+
+- name: AWS | Create instance
+  ec2:
+    count_tag:
+      Name: ansibullbot
+    exact_count: 1
+    image: "{{ _amifind.results[0].ami_id }}"
+    groups: "{{ botinstance_security_group_name }}"
+    instance_tags:
+      Name: ansibullbot
+    instance_type: t2.medium
+    key_name: "{{ botinstance_ssh_keys[0].name }}"
+    region: "{{ botinstance_region }}"
+    termination_protection: no
+    wait: yes
+    volumes:
+      - device_name: /dev/sda1
+        delete_on_termination: yes
+        volume_type: gp2
+        volume_size: "{{ botinstance_volume_size }}"
+  register: _ec2_instances
+  tags:
+    - botinstance
+    - create
+
+- name: AWS | Allocate elastic IP
+  ec2_eip:
+    device_id: "{{ _ec2_instances.tagged_instances[0].id }}"
+    in_vpc: yes
+    region: "{{ botinstance_region }}"
+    release_on_disassociation: yes
+    reuse_existing_ip_allowed: yes
+    state: present
+  register: _elastic_ip
+  tags:
+    - botinstance
+    - create
+
+- name: AWS | Create route 53 entries
+  route53:
+    command: "{{ item.command | default('create') }}"
+    zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
+    overwrite: yes
+    record: "{{ item.record }}"
+    ttl: "{{ item.ttl | default('300') }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value | default(omit) }}"
+  with_items: "{{ botinstance_dns_entries }}"
+  tags:
+    - dns
+
+- name: Wait for instance
+  wait_for:
+    host: "{{ _elastic_ip.public_ip }}"
+    port: 22
+  tags:
+    - botinstance
+    - create
