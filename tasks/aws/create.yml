@@ -7,7 +7,6 @@
   with_items: "{{ botinstance_ssh_keys }}"
   tags:
     - botinstance
-    - create
     - ssh
 
 - name: AWS | Create security group
@@ -16,11 +15,11 @@
     name: "{{ botinstance_security_group_name }}"
     region: "{{ botinstance_region }}"
     rules: "{{ botinstance_security_group_rules }}"
+    rules_egress: "{{ botinstance_security_group_rules_egress }}"
     state: "{{ botinstance_state | default(omit) }}"
   register: _security_group
   tags:
     - botinstance
-    - create
     - security_group
 
 - name: AWS | Create instance
@@ -45,7 +44,7 @@
   register: _ec2_instances
   tags:
     - botinstance
-    - create
+    - instance
 
 - name: AWS | Allocate elastic IP
   ec2_eip:
@@ -53,12 +52,10 @@
     in_vpc: yes
     region: "{{ botinstance_region }}"
     release_on_disassociation: yes
-    reuse_existing_ip_allowed: yes
     state: present
   register: _elastic_ip
   tags:
     - botinstance
-    - create
 
 - name: AWS | Create route 53 entries
   route53:
@@ -79,4 +76,3 @@
     port: 22
   tags:
     - botinstance
-    - create
