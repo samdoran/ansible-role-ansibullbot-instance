@@ -5,6 +5,9 @@
     region: "{{ botinstance_region }}"
     state: absent
   with_items: "{{ botinstance_ssh_keys }}"
+  tags:
+    - botinstance
+    - ssh
 
 - name: AWS | Destroy instance
   ec2:
@@ -13,6 +16,9 @@
     exact_count: 0
     image: "{{ _amifind.results[0].ami_id }}"
     region: "{{ botinstance_region }}"
+  tags:
+    - botinstance
+    - instance
 
 - name: AWS | Delete security group
   ec2_group:
@@ -25,6 +31,9 @@
   until: _security_group | success
   delay: 10
   retries: 5
+  tags:
+    - botinstance
+    - security_group
 
 - name: AWS | Delete route 53 entries
   route53:
@@ -36,3 +45,7 @@
     type: "{{ item.type }}"
     value: "{{ item.value | default(omit) }}"
   with_items: "{{ botinstance_dns_entries }}"
+  ignore_errors: yes
+  tags:
+    - botinstance
+    - dns
