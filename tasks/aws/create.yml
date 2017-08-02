@@ -1,3 +1,16 @@
+- name: Find AMI
+  ec2_ami_find:
+    name: "CentOS Linux 7*"
+    owner: 410186602215
+    region: "{{ botinstance_region }}"
+    sort: name
+    sort_order: descending
+    sort_end: 1
+  register: _amifind
+  tags:
+    - botinstance
+    - always
+
 - name: AWS | Create ssh keys
   ec2_key:
     name: "{{ item.name }}"
@@ -34,7 +47,7 @@
     instance_type: t2.medium
     key_name: "{{ botinstance_ssh_keys[0].name }}"
     region: "{{ botinstance_region }}"
-    termination_protection: no
+    termination_protection: yes
     wait: yes
     volumes:
       - device_name: /dev/sda1
