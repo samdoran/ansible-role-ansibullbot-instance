@@ -1,1 +1,1 @@
-- include: "{{ botinstance_cloud }}/{{ botinstance_action }}.yml"
+- include_tasks: "{{ botinstance_cloud }}/{{ botinstance_action }}.yml"
