@@ -1,12 +1,10 @@
 - name: Find AMI
-  ec2_ami_find:
-    name: "CentOS Linux 7*"
-    owner: 410186602215
+  ec2_ami_facts:
+    filters:
+      name: "CentOS Linux 7*"
+    owners: 410186602215
     region: "{{ botinstance_region }}"
-    sort: name
-    sort_order: descending
-    sort_end: 1
-  register: _amifind
+  register: _ami_facts
   tags:
     - botinstance
     - always
@@ -40,7 +38,7 @@
     count_tag:
       Name: ansibullbot
     exact_count: 1
-    image: "{{ _amifind.results[0].ami_id }}"
+    image: "{{ (_ami_facts.images | last)['image_id']  }}"
     groups: "{{ botinstance_security_group_name }}"
     instance_tags:
       Name: ansibullbot
