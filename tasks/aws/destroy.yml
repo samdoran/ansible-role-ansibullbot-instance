@@ -39,7 +39,7 @@
   route53:
     command: delete
     zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
-    overwrite: yes
+    overwrite: true
     record: "{{ item.record }}"
     ttl: "{{ item.ttl | default('300') }}"
     type: "{{ item.type }}"
