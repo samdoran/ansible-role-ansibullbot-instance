@@ -4,7 +4,7 @@
     key_material: "{{ item.key_material }}"
     region: "{{ botinstance_region }}"
     state: absent
-  with_items: "{{ botinstance_ssh_keys }}"
+  loop: "{{ botinstance_ssh_keys }}"
   tags:
     - botinstance
     - ssh
@@ -44,8 +44,8 @@
     ttl: "{{ item.ttl | default('300') }}"
     type: "{{ item.type }}"
     value: "{{ item.value | default(omit) }}"
-  with_items: "{{ botinstance_dns_entries }}"
-  ignore_errors: yes
+  loop: "{{ botinstance_dns_entries }}"
+  ignore_errors: true
   tags:
     - botinstance
     - dns
