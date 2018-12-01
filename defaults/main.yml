@@ -1,6 +1,7 @@
 botinstance_action: create
 botinstance_volume_size: 100
 botinstance_cloud: aws
+botinstance_type: t2.medium
 botinstance_region: us-east-2
 botinstance_ssh_keys:
   - name: sdoran@aws

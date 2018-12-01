@@ -1,1 +1,7 @@
 - include_tasks: "{{ botinstance_cloud }}/{{ botinstance_action }}.yml"
+  tags:
+    - dns
+    - instance
+    - botinstance
+    - ssh
+    - security_group

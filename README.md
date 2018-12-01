@@ -16,6 +16,7 @@ Role Variables
 | `botinstance_action` | `create` | Default action to take: `create` or `destroy`. |
 | `botinstance_volume_size` | `100` | Size in GB for the main volume. |
 | `botinstance_cloud` | `aws` | Cloud platform where instance will be created. |
+| `botinstance_type` | `t2.medium` | Instance type/size to create. |
 | `botinstance_region` | `us-east-2` | Region in cloud platform where instance will be created. |
 | `botinstance_ssh_keys` | [see `defaults/main.yml`] | Public SSH keys to insert into the instance for logging in. |
 | `botinstance_security_group_name` | `Ansibullbot` | Security group name to create in cloud platform. |
