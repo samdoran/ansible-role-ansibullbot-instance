@@ -1,5 +1,6 @@
 Ansibullbot Instance
-=========
+====================
+[![Build Status](https://travis-ci.org/samdoran/ansible-role-ansibullbot-instance.svg?branch=master)](https://travis-ci.org/samdoran/ansible-role-ansibullbot-instance)
 
 Create instance for running [Ansibullbot](https://github.com/ansible/ansibullbot).
 
