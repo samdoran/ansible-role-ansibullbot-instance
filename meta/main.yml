@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: ansibullbot_instance
   author: Sam Doran
   description: Create instance to run Ansibullbot
   company: Ansible by Red Hat
