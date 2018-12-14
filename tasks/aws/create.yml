@@ -36,12 +36,12 @@
 - name: AWS | Create instance
   ec2:
     count_tag:
-      Name: ansibullbot
+      Name: "{{ botinstance_name }}"
     exact_count: 1
     image: "{{ (_ami_facts.images | last)['image_id']  }}"
     groups: "{{ botinstance_security_group_name }}"
     instance_tags:
-      Name: ansibullbot
+      Name: "{{ botinstance_name }}"
     instance_type: "{{ botinstance_type }}"
     key_name: "{{ botinstance_ssh_keys[0].name }}"
     region: "{{ botinstance_region }}"
@@ -64,13 +64,14 @@
     region: "{{ botinstance_region }}"
     release_on_disassociation: true
     state: present
+    reuse_existing_ip_allowed: true
   register: _elastic_ip
   tags:
     - botinstance
 
 - name: AWS | Create route 53 entries
   route53:
-    command: "{{ item.command | default('create') }}"
+    state: "{{ item.state | default('present') }}"
     zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
     overwrite: true
     record: "{{ item.record }}"

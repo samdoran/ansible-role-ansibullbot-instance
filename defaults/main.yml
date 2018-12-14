@@ -1,4 +1,5 @@
 botinstance_action: create
+botinstance_name: ansibullbot
 botinstance_volume_size: 100
 botinstance_cloud: aws
 botinstance_type: t2.medium

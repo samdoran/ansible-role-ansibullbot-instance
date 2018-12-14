@@ -15,6 +15,7 @@ Role Variables
 | Name              | Default Value       | Description          |
 |-------------------|---------------------|----------------------|
 | `botinstance_action` | `create` | Default action to take: `create` or `destroy`. |
+| `botinstance_name` | `ansibullbot` | Name tag applied to instance and used for comparing exact count. |
 | `botinstance_volume_size` | `100` | Size in GB for the main volume. |
 | `botinstance_cloud` | `aws` | Cloud platform where instance will be created. |
 | `botinstance_type` | `t2.medium` | Instance type/size to create. |
