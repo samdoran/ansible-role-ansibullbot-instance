@@ -45,11 +45,11 @@
     instance_type: "{{ botinstance_type }}"
     key_name: "{{ botinstance_ssh_keys[0].name }}"
     region: "{{ botinstance_region }}"
-    termination_protection: true
-    wait: true
+    termination_protection: yes
+    wait: yes
     volumes:
       - device_name: /dev/sda1
-        delete_on_termination: true
+        delete_on_termination: yes
         volume_type: gp2
         volume_size: "{{ botinstance_volume_size }}"
   register: _ec2_instances
@@ -60,11 +60,11 @@
 - name: AWS | Allocate elastic IP
   ec2_eip:
     device_id: "{{ _ec2_instances.tagged_instances[0].id }}"
-    in_vpc: true
+    in_vpc: yes
     region: "{{ botinstance_region }}"
-    release_on_disassociation: true
+    release_on_disassociation: yes
     state: present
-    reuse_existing_ip_allowed: true
+    reuse_existing_ip_allowed: yes
   register: _elastic_ip
   tags:
     - botinstance
@@ -73,7 +73,7 @@
   route53:
     state: "{{ item.state | default('present') }}"
     zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
-    overwrite: true
+    overwrite: yes
     record: "{{ item.record }}"
     ttl: "{{ item.ttl | default('300') }}"
     type: "{{ item.type }}"

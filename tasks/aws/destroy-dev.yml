@@ -14,7 +14,7 @@
     instance_tags:
       Name: "{{ botinstance_name }}"
     state: running
-    termination_protection: false
+    termination_protection: no
     image: "{{ (_ami_facts.images | last)['image_id']  }}"
     region: "{{ botinstance_region }}"
   tags:
@@ -26,7 +26,7 @@
     count_tag:
       Name: "{{ botinstance_name }}"
     exact_count: 0
-    termination_protection: false
+    termination_protection: no
     image: "{{ (_ami_facts.images | last)['image_id']  }}"
     region: "{{ botinstance_region }}"
   tags:
