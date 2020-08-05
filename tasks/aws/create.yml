@@ -34,24 +34,21 @@
     - security_group
 
 - name: AWS | Create instance
-  ec2:
-    count_tag:
-      Name: "{{ botinstance_name }}"
-    exact_count: 1
-    image: "{{ (_ami_facts.images | last)['image_id']  }}"
-    groups: "{{ botinstance_security_group_name }}"
-    instance_tags:
-      Name: "{{ botinstance_name }}"
+  ec2_instance:
+    name: "{{ botinstance_name }}"
+    image_id: "{{ (_ami_facts.images | last)['image_id']  }}"
+    security_group: "{{ botinstance_security_group_name }}"
     instance_type: "{{ botinstance_type }}"
     key_name: "{{ botinstance_ssh_keys[0].name }}"
     region: "{{ botinstance_region }}"
-    termination_protection: yes
+    termination_protection: true
     wait: yes
     volumes:
       - device_name: /dev/sda1
-        delete_on_termination: yes
-        volume_type: gp2
-        volume_size: "{{ botinstance_volume_size }}"
+        ebs:
+          delete_on_termination: true
+          volume_type: gp2
+          volume_size: "{{ botinstance_volume_size }}"
   register: _ec2_instances
   tags:
     - botinstance
@@ -59,7 +56,7 @@
 
 - name: AWS | Allocate elastic IP
   ec2_eip:
-    device_id: "{{ _ec2_instances.tagged_instances[0].id }}"
+    device_id: "{{ _ec2_instances.instances[0].instance_id }}"
     in_vpc: yes
     region: "{{ botinstance_region }}"
     release_on_disassociation: yes

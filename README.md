@@ -7,7 +7,7 @@ Create instance for running [Ansibullbot](https://github.com/ansible/ansibullbot
 Requirements
 ------------
 
-`boto` installed and configured
+`boto`, `boto3`, and `botocore` installed and configured
 
 Role Variables
 --------------
