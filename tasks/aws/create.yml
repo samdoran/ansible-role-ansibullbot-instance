@@ -1,5 +1,5 @@
 - name: Find AMI
-  ec2_ami_facts:
+  ec2_ami_info:
     filters:
       name: "CentOS Linux 7*"
     owners: 410186602215
