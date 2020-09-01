@@ -9,35 +9,20 @@
     - botinstance
     - ssh
 
-- name: Find AMI
-  ec2_ami_facts:
-    filters:
-      name: "CentOS Linux 7*"
-    owners: 410186602215
-    region: "{{ botinstance_region }}"
-  register: _ami_facts
-  tags:
-    - botinstance
-    - always
-
 - name: AWS | Disable termination protection
-  ec2:
-    instance_tags:
-      Name: "{{ botinstance_name }}"
+  ec2_instance:
+    name: "{{ botinstance_name }}"
     state: running
     termination_protection: false
-    image: "{{ (_ami_facts.images | last)['image_id']  }}"
     region: "{{ botinstance_region }}"
   tags:
     - botinstance
     - instance
 
 - name: AWS | Destroy instance
-  ec2:
-    count_tag:
-      Name: "{{ botinstance_name }}"
-    exact_count: 0
-    image: "{{ _amifind.results[0].ami_id }}"
+  ec2_instance:
+    name: "{{ botinstance_name }}"
+    state: absent
     region: "{{ botinstance_region }}"
   tags:
     - botinstance
