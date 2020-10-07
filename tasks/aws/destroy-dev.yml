@@ -34,7 +34,7 @@
     - instance
 
 - name: AWS | Get route 53 entries
-  route53:
+  community.aws.route53:
     state: get
     zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
     record: "{{ item.record }}"
@@ -46,7 +46,7 @@
     - dns
 
 - name: AWS | Delete route 53 entries
-  route53:
+  communit.aws.route53:
     state: absent
     zone: "{{ item.set.hosted_zone_id | default(botinstance_dns_zone) }}"
     record: "{{ item.set.record }}"

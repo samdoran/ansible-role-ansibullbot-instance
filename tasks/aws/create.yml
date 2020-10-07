@@ -1,5 +1,5 @@
 - name: Find AMI
-  ec2_ami_info:
+  amazon.aws.ec2_ami_info:
     filters:
       name: "CentOS Linux 7*"
     owners: 410186602215
@@ -10,7 +10,7 @@
     - always
 
 - name: AWS | Create ssh keys
-  ec2_key:
+  amazon.aws.ec2_key:
     name: "{{ item.name }}"
     key_material: "{{ item.key_material }}"
     region: "{{ botinstance_region }}"
@@ -21,7 +21,7 @@
     - ssh
 
 - name: AWS | Create security group
-  ec2_group:
+  amazon.aws.ec2_group:
     description: "Ports for bot"
     name: "{{ botinstance_security_group_name }}"
     region: "{{ botinstance_region }}"
@@ -34,7 +34,7 @@
     - security_group
 
 - name: AWS | Create instance
-  ec2_instance:
+  community.aws.ec2_instance:
     name: "{{ botinstance_name }}"
     image_id: "{{ (_ami_facts.images | last)['image_id']  }}"
     security_group: "{{ botinstance_security_group_name }}"
@@ -55,8 +55,8 @@
     - instance
 
 - name: AWS | Allocate elastic IP
-  ec2_eip:
     device_id: "{{ _ec2_instances.instances[0].instance_id }}"
+  community.aws.ec2_eip:
     in_vpc: yes
     region: "{{ botinstance_region }}"
     release_on_disassociation: yes
@@ -67,7 +67,7 @@
     - botinstance
 
 - name: AWS | Create route 53 entries
-  route53:
+  community.aws.route53:
     state: "{{ item.state | default('present') }}"
     zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
     overwrite: yes

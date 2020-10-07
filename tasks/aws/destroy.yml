@@ -1,5 +1,5 @@
 - name: AWS | Remove ssh keys
-  ec2_key:
+  amazon.aws.ec2_key:
     name: "{{ item.name }}"
     key_material: "{{ item.key_material }}"
     region: "{{ botinstance_region }}"
@@ -7,29 +7,26 @@
   loop: "{{ botinstance_ssh_keys }}"
   tags:
     - botinstance
-    - ssh
 
 - name: AWS | Disable termination protection
-  ec2_instance:
+  community.aws.ec2_instance:
     name: "{{ botinstance_name }}"
     state: running
-    termination_protection: false
+    termination_protection: no
     region: "{{ botinstance_region }}"
   tags:
     - botinstance
-    - instance
 
 - name: AWS | Destroy instance
-  ec2_instance:
+  community.aws.ec2_instance:
     name: "{{ botinstance_name }}"
     state: absent
     region: "{{ botinstance_region }}"
   tags:
     - botinstance
-    - instance
 
 - name: AWS | Delete security group
-  ec2_group:
+  amazon.aws.ec2_group:
     description: "Ports for bot"
     name: "{{ botinstance_security_group_name }}"
     region: "{{ botinstance_region }}"
@@ -41,30 +38,27 @@
   retries: 5
   tags:
     - botinstance
-    - security_group
 
 - name: AWS | Get route 53 entries
-  route53:
+  community.aws.route53:
     state: get
-    zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
+    zone: "{{ botinstance_dns_zone }}"
     record: "{{ item.record }}"
     type: "{{ item.type }}"
   loop: "{{ botinstance_dns_entries }}"
   register: current_dns_records
   tags:
     - botinstance
-    - dns
 
 - name: AWS | Delete route 53 entries
-  route53:
+  community.aws.route53:
     state: absent
     zone: "{{ item.set.hosted_zone_id | default(botinstance_dns_zone) }}"
     record: "{{ item.set.record }}"
     ttl: "{{ item.set.ttl | default('300') }}"
     type: "{{ item.set.type }}"
     value: "{{ item.set.value | default(omit) }}"
+  when: item.set | length > 0
   loop: "{{ current_dns_records.results }}"
-  when: current_dns_records.results[0].set | length > 0
   tags:
     - botinstance
-    - dns
