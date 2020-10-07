@@ -12,6 +12,9 @@ botinstance_ssh_keys:
       gvm3N0Xjd4IA2788zsmOD/viHQt47AVOqFGhkyt/QlFdxw2MqUevkQiEmIv46aZkSLMtcsoLa/q63tCVaEl8vRRWhUVei8fvs5mVcPuJzq8jV92\
       mtU+JUzh+SRpKynUsQKME4OB3OgUpTtpZvAJONWY4NS8P9t5"
 
+botinstance_ami_filter_name: 'CentOS 8*'
+botinstance_ami_filter_architecture: x86_64
+botinstance_ami_owners: 125523088429
 
 botinstance_security_group_name: Ansibullbot
 botinstance_security_group_rules_egress:

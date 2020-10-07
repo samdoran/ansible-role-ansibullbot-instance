@@ -1,8 +1,9 @@
 - name: Find AMI
   amazon.aws.ec2_ami_info:
     filters:
-      name: "CentOS Linux 7*"
-    owners: 410186602215
+      name: "{{ botinstance_ami_filter_name | default(omit) }}"
+      architecture: "{{ botinstance_ami_filter_architecture | default(omit) }}"
+    owners: "{{ botinstance_ami_owners }}"
     region: "{{ botinstance_region }}"
   register: _ami_facts
   tags:
