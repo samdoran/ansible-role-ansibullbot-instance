@@ -58,4 +58,4 @@ botinstance_dns_entries:
   - type: A
     command: create
     record: ansibullbot.eng.ansible.com
-    value: "{{ _elastic_ip.public_ip }}"
+    value: "{{ elastic_ip.public_ip }}"

@@ -5,7 +5,7 @@
       architecture: "{{ botinstance_ami_filter_architecture | default(omit) }}"
     owners: "{{ botinstance_ami_owners }}"
     region: "{{ botinstance_region }}"
-  register: _ami_facts
+  register: amis
   tags:
     - botinstance
     - always
@@ -37,40 +37,42 @@
 - name: AWS | Create instance
   community.aws.ec2_instance:
     name: "{{ botinstance_name }}"
-    image_id: "{{ (_ami_facts.images | last)['image_id']  }}"
+    image_id: "{{ (amis.images | last)['image_id']  }}"
     security_group: "{{ botinstance_security_group_name }}"
     instance_type: "{{ botinstance_type }}"
     key_name: "{{ botinstance_ssh_keys[0].name }}"
     region: "{{ botinstance_region }}"
-    termination_protection: true
+    termination_protection: yes
     wait: yes
     volumes:
       - device_name: /dev/sda1
         ebs:
-          delete_on_termination: true
+          delete_on_termination: yes
           volume_type: gp2
           volume_size: "{{ botinstance_volume_size }}"
-  register: _ec2_instances
+  register: ec2_instances
   tags:
     - botinstance
     - instance
+    - dns
 
 - name: AWS | Allocate elastic IP
-    device_id: "{{ _ec2_instances.instances[0].instance_id }}"
   community.aws.ec2_eip:
+    device_id: "{{ ec2_instances.instances[0].instance_id }}"
     in_vpc: yes
     region: "{{ botinstance_region }}"
     release_on_disassociation: yes
     state: present
     reuse_existing_ip_allowed: yes
-  register: _elastic_ip
+  register: elastic_ip
   tags:
     - botinstance
+    - dns
 
 - name: AWS | Create route 53 entries
   community.aws.route53:
     state: "{{ item.state | default('present') }}"
-    zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
+    zone: "{{ botinstance_dns_zone }}"
     overwrite: yes
     record: "{{ item.record }}"
     ttl: "{{ item.ttl | default('300') }}"
@@ -79,10 +81,11 @@
   loop: "{{ botinstance_dns_entries }}"
   tags:
     - dns
+    - botinstance
 
 - name: Wait for instance
   wait_for:
-    host: "{{ _elastic_ip.public_ip }}"
+    host: "{{ elastic_ip.public_ip }}"
     port: 22
     delay: 30
     search_regex: OpenSSH
