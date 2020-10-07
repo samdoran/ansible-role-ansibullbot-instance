@@ -1,60 +1,39 @@
-- name: Find AMI
-  ec2_ami_facts:
-    filters:
-      name: "CentOS Linux 7*"
-    owners: 410186602215
-    region: "{{ botinstance_region }}"
-  register: _ami_facts
-  tags:
-    - botinstance
-    - always
-
 - name: AWS | Disable termination protection
-  ec2:
-    instance_tags:
-      Name: "{{ botinstance_name }}"
-    state: running
+  community.aws.ec2_instance:
+    name: "{{ botinstance_name }}"
     termination_protection: no
-    image: "{{ (_ami_facts.images | last)['image_id']  }}"
     region: "{{ botinstance_region }}"
   tags:
     - botinstance
-    - instance
 
 - name: AWS | Destroy instance
-  ec2:
-    count_tag:
-      Name: "{{ botinstance_name }}"
-    exact_count: 0
-    termination_protection: no
-    image: "{{ (_ami_facts.images | last)['image_id']  }}"
+  community.aws.ec2_instance:
+    name: "{{ botinstance_name }}"
     region: "{{ botinstance_region }}"
+    state: absent
   tags:
     - botinstance
-    - instance
 
-- name: AWS | Get route 53 entries
+- name: AWS | Get Route 53 records
   community.aws.route53:
     state: get
-    zone: "{{ item.hosted_zone_id | default(botinstance_dns_zone) }}"
+    zone: "{{ botinstance_dns_zone }}"
     record: "{{ item.record }}"
     type: "{{ item.type }}"
   loop: "{{ botinstance_dns_entries }}"
   register: current_dns_records
   tags:
     - botinstance
-    - dns
 
 - name: AWS | Delete route 53 entries
-  communit.aws.route53:
+  community.aws.route53:
     state: absent
-    zone: "{{ item.set.hosted_zone_id | default(botinstance_dns_zone) }}"
+    zone: "{{ botinstance_dns_zone }}"
     record: "{{ item.set.record }}"
     ttl: "{{ item.set.ttl | default('300') }}"
     type: "{{ item.set.type }}"
     value: "{{ item.set.value | default(omit) }}"
+  when: item.set | length > 0
   loop: "{{ current_dns_records.results }}"
-  when: current_dns_records.results[0].set | length > 0
   tags:
     - botinstance
-    - dns
