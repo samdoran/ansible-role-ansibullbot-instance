@@ -47,6 +47,11 @@ botinstance_security_group_rules:
 botinstance_dns_zone: eng.ansible.com
 
 botinstance_dns_entries:
+  - type: A
+    command: create
+    record: ansibullbot.eng.ansible.com
+    value: "{{ elastic_ip.public_ip }}"
+
   - type: CNAME
     record: ansibot.eng.ansible.com
     value: ansibullbot.eng.ansible.com
@@ -54,8 +59,3 @@ botinstance_dns_entries:
   - type: CNAME
     record: ansiblebot.eng.ansible.com
     value: ansibullbot.eng.ansible.com
-
-  - type: A
-    command: create
-    record: ansibullbot.eng.ansible.com
-    value: "{{ elastic_ip.public_ip }}"
